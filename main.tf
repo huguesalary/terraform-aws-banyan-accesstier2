@@ -4,7 +4,7 @@ locals {
   })
 
   asg_tags = merge(local.tags, {
-    Name = "${var.name}-banyan-accesstier"
+    Name = "${format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)}"
   })
 }
 
@@ -28,7 +28,7 @@ data "aws_vpc" "selected" {
 }
 
 resource "aws_security_group" "sg" {
-  name        = "${var.name}-accesstier-sg"
+  name        = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   description = "Elastic Access Tier ingress traffic"
   vpc_id      = var.vpc_id
 
@@ -114,7 +114,7 @@ resource "aws_security_group" "sg" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name                      = "${var.name}-accesstier-asg"
+  name                      = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   launch_configuration      = aws_launch_configuration.conf.name
   max_size                  = 10
   min_size                  = var.min_instances
@@ -141,7 +141,7 @@ resource "aws_autoscaling_group" "asg" {
 }
 
 resource "aws_launch_configuration" "conf" {
-  name_prefix     = "${var.name}-accesstier-conf-"
+  name_prefix     = format("%s%s%s-", var.resources_prefix, var.name, var.resources_suffix)
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = var.instance_type
   key_name        = var.ssh_key_name
@@ -186,7 +186,7 @@ resource "aws_launch_configuration" "conf" {
     var.netagent_version != null ? "apt-get update && apt-get install -y banyan-netagent2=${var.netagent_version} \n" : "apt-get update && apt-get install -y banyan-netagent2 \n",
     # configure and start netagent
     "cd /opt/banyan-packages \n",
-    "export ACCESS_TIER_NAME=${var.name} \n",
+    "export ACCESS_TIER_NAME=${format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)} \n",
     "export API_KEY_SECRET=${banyan_api_key.accesstier.secret} \n",
     "export COMMAND_CENTER_URL=${var.banyan_host} \n",
     "./install \n",
@@ -195,7 +195,7 @@ resource "aws_launch_configuration" "conf" {
 }
 
 resource "aws_alb" "nlb" {
-  name                             = "${var.name}-nlb"
+  name                             = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   load_balancer_type               = "network"
   internal                         = false
   subnets                          = var.public_subnet_ids
@@ -205,7 +205,7 @@ resource "aws_alb" "nlb" {
 }
 
 resource "aws_lb_target_group" "target443" {
-  name     = "${var.name}-tg-443"
+  name     = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   vpc_id   = var.vpc_id
   port     = 443
   protocol = "TCP"
@@ -237,7 +237,7 @@ resource "aws_lb_listener" "listener443" {
 resource "aws_lb_target_group" "target80" {
   count = var.redirect_http_to_https ? 1 : 0
 
-  name     = "${var.name}-tg-80"
+  name     = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   vpc_id   = var.vpc_id
   port     = 80
   protocol = "TCP"
@@ -269,7 +269,7 @@ resource "aws_lb_listener" "listener80" {
 }
 
 resource "aws_lb_target_group" "target8443" {
-  name     = "${var.name}-tg-8443"
+  name     = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   vpc_id   = var.vpc_id
   port     = 8443
   protocol = "TCP"
@@ -299,7 +299,7 @@ resource "aws_lb_listener" "listener8443" {
 }
 
 resource "aws_lb_target_group" "target51820" {
-  name     = "${var.name}-tg-51820"
+  name     = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   vpc_id   = var.vpc_id
   port     = 51820
   protocol = "UDP"
@@ -329,7 +329,7 @@ resource "aws_lb_listener" "listener51820" {
 }
 
 resource "aws_autoscaling_policy" "cpu_policy" {
-  name                   = "${var.name}-cpu-scaling-policy"
+  name                   = format("%s%s%s", var.resources_prefix, var.name, var.resources_suffix)
   autoscaling_group_name = aws_autoscaling_group.asg.name
   policy_type            = "TargetTrackingScaling"
   target_tracking_configuration {

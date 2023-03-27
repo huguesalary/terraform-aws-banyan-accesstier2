@@ -4,6 +4,18 @@ variable "name" {
   description = "Name to use when registering this Access Tier with the Banyan command center"
 }
 
+variable "resources_prefix" {
+  type        = string
+  description = "Prefix to add to every resources created by this module"
+  default     = ""
+}
+
+variable "resources_suffix" {
+  type        = string
+  description = "Suffix to add to every resources created by this module"
+  default     = ""
+}
+
 variable "banyan_host" {
   type        = string
   description = "URL to the Banyan API server"
@@ -65,43 +77,43 @@ variable "tunnel_port" {
 }
 
 variable "tunnel_private_domains" {
-  type = list(string)
+  type        = list(string)
   description = "Any internal domains that can only be resolved on your internal network’s private DNS"
   default     = null
 }
 
 variable "tunnel_cidrs" {
-  type = list(string)
+  type        = list(string)
   description = "Backend CIDR Ranges that correspond to the IP addresses in your private network(s)"
   default     = null
 }
 
 variable "console_log_level" {
-  type = string
+  type        = string
   description = "Controls verbosity of logs to console. Must be one of \"ERR\", \"WARN\", \"INFO\", \"DEBUG\""
   default     = null
 }
 
 variable "file_log_level" {
-  type = string
+  type        = string
   description = "Controls verbosity of logs to file. Must be one of \"ERR\", \"WARN\", \"INFO\", \"DEBUG\""
   default     = null
 }
 
 variable "file_log" {
-  type = bool
+  type        = bool
   description = "Whether to log to file or not"
   default     = null
 }
 
 variable "log_num" {
-  type = number
+  type        = number
   description = "For file logs: Number of files to use for log rotation"
   default     = null
 }
 
 variable "log_size" {
-  type = number
+  type        = number
   description = "For file logs: Size of each file for log rotation"
   default     = null
 }
